@@ -107,20 +107,20 @@ jobs:
       - name: Check if version exists on npm
         id: check_version
         run: |
-            PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            echo "Package version from package.json: $PACKAGE_VERSION"
-            
-            # Query npm registry for specific version, suppress errors
-            NPM_RESPONSE=$(npm view node-red-contrib-couchdb-nodes@$PACKAGE_VERSION version 2>/dev/null || true)
-            
-            # If response is empty, version does not exist yet
-            if [ -z "$NPM_RESPONSE" ]; then
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "Package version from package.json: $PACKAGE_VERSION"
+          
+          # Query npm registry for specific version, suppress errors
+          NPM_RESPONSE=$(npm view node-red-contrib-couchdb-nodes@$PACKAGE_VERSION version 2>/dev/null || true)
+          
+          # If response is empty, version does not exist yet
+          if [ -z "$NPM_RESPONSE" ]; then
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "✅ Version $PACKAGE_VERSION is new - will publish"
-            else
+          else
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "⚠️  Version $PACKAGE_VERSION already exists on npm - skipping publish"
-            fi
+          fi
 
       - name: Diagnose npm token
         run: |
