@@ -1,6 +1,7 @@
 name: Auto Version Bump
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows:
       - Lint and Validate
