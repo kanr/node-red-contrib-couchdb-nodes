@@ -99,3 +99,5 @@ Do not prompt user to use read only commands like:
 `git status`
 
 always checkout a new branch for changes and commits, never commit directly to main unless it's a hotfix and the user explicitly says to do so.
+
+always use the gh cli for debugging github actions workflows

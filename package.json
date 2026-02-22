@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-couchdb-nodes",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Node-RED nodes for CouchDB CRUD operations",
   "main": "src/nodes/index.js",
   "scripts": {
