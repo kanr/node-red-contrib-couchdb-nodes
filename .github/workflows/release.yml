@@ -38,29 +38,56 @@ jobs:
 
       - name: Verify package version matches tag
         run: |
-          TAG_VERSION=${GITHUB_REF#refs/tags/v}
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
-            echo "Error: Tag version ($TAG_VERSION) doesn't match package.json version ($PACKAGE_VERSION)"
-            exit 1
+          
+          # If triggered by workflow_dispatch, only verify if a version was specified
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ ! -z "${{ github.event.inputs.version }}" ]; then
+            if [ "${{ github.event.inputs.version }}" != "$PACKAGE_VERSION" ]; then
+              echo "Error: Input version (${{ github.event.inputs.version }}) doesn't match package.json version ($PACKAGE_VERSION)"
+              exit 1
+            fi
+          # If triggered by tag push, verify tag matches package.json
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            TAG_VERSION=${GITHUB_REF#refs/tags/v}
+            if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+              echo "Error: Tag version ($TAG_VERSION) doesn't match package.json version ($PACKAGE_VERSION)"
+              exit 1
+            fi
           fi
-          echo "Version verified: $PACKAGE_VERSION"
+          echo "✅ Version verified: $PACKAGE_VERSION"
 
-      - name: Get version from tag
+      - name: Get version from tag or input
         id: get_version
         run: |
-          if [ -z "${{ github.event.inputs.version }}" ]; then
-            VERSION=${GITHUB_REF#refs/tags/}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual trigger - use input version or read from package.json
+            if [ ! -z "${{ github.event.inputs.version }}" ]; then
+              VERSION="v${{ github.event.inputs.version }}"
+            else
+              PACKAGE_VERSION=$(node -p "require('./package.json').version")
+              VERSION="v$PACKAGE_VERSION"
+            fi
+            echo "Manual trigger - detected version: $VERSION"
           else
-            VERSION="v${{ github.event.inputs.version }}"
+            # Tag triggered
+            VERSION=${GITHUB_REF#refs/}
+            echo "Tag triggered - detected version: $VERSION"
           fi
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION"
 
       - name: Create Release Notes
         id: changelog
         run: |
-          CHANGELOG=$(git log $(git describe --tags --abbrev=0 HEAD~1)..HEAD --oneline)
+          # Get the latest tag or start from beginning if no previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # No previous tag, show all commits
+            CHANGELOG=$(git log --oneline | head -20)
+          else
+            CHANGELOG=$(git log $PREVIOUS_TAG..HEAD --oneline)
+          fi
+          
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
