@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows:
       - Lint and Validate
+      - Test and Build
     types:
       - completed
 
@@ -14,10 +15,11 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
 
-    # Only bump on successful push-based runs, and skip bump commits
+    # Only bump on successful PR runs from this repo, and skip bump commits
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
       !contains(github.event.workflow_run.head_commit.message, '[skip-version]') &&
       !contains(github.event.workflow_run.head_commit.message, 'bump:')
     
