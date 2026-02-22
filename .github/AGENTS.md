@@ -16,6 +16,8 @@ Based on [Node-RED creating nodes documentation](https://nodered.org/docs/creati
 4. **Consistent output** - Predictable message transformations
 5. **Comprehensive error handling** - Always catch errors; don't let uncaught errors stop flows
 6. **Test** - always run tests and update tests where applicable
+7. **Git** - always checkout to a new branch to make changes
+
 
 ### Node-RED Node Structure
 
