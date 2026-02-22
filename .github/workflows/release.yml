@@ -110,17 +110,19 @@ jobs:
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           echo "Package version from package.json: $PACKAGE_VERSION"
           
-          # Query npm registry with better error handling
+          # Query npm registry for specific version
           NPM_RESPONSE=$(npm view node-red-contrib-couchdb-nodes@$PACKAGE_VERSION version 2>&1)
           NPM_EXIT=$?
           
-          if [ $NPM_EXIT -eq 0 ] && [ ! -z "$NPM_RESPONSE" ]; then
+          # Check if version exists: exit code is 0 AND response matches exact version
+          if [ "$NPM_RESPONSE" = "$PACKAGE_VERSION" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
             echo "⚠️  Version $PACKAGE_VERSION already exists on npm - skipping publish"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "✅ Version $PACKAGE_VERSION is new - will publish"
             echo "NPM check exit code: $NPM_EXIT"
+            echo "NPM response: $NPM_RESPONSE"
           fi
 
       - name: Diagnose npm token
