@@ -17,8 +17,11 @@ jobs:
 
     # Only bump on successful PR runs from this repo, and skip bump commits
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request' 
+       github.event.workflow_run.conclusion == 'success' &&
+       (
+         (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests != null) ||
+         github.event.workflow_run.event == 'push'
+       )
       
     steps:
       - name: Checkout code
@@ -32,6 +35,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
+
+      - name: Check if version already bumped in PR
+        run: |
+          git fetch origin main --depth=1
+          BASE_VERSION=$(git show origin/main:package.json | node -e "const fs=require('fs');const data=fs.readFileSync(0,'utf8');console.log(JSON.parse(data).version);")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Base version: $BASE_VERSION"
+          echo "Current version: $CURRENT_VERSION"
+          if [ "$CURRENT_VERSION" != "$BASE_VERSION" ]; then
+            echo "✅ Version already bumped in this PR. Skipping auto-bump."
+            exit 0
+          fi
 
       - name: Configure Git
         run: |
