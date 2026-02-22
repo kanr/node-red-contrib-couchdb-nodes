@@ -18,15 +18,12 @@ permissions:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-
     # Allow manual dispatch only (workflow_run is not available for push/workflow_dispatch events)
     # Allow on merge to main
     if: >-
        github.event_name == 'workflow_dispatch' || (
          github.event.workflow_run.head_branch == 'main'
        )
-      
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -39,26 +36,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
-
-      - name: Check PR commits for bump keyword
-        run: |
-          git fetch origin main --depth=1
-          if git log --format=%s origin/main..HEAD | grep -i -q "bump: version to"; then
-              echo "❌ Found 'bump: version to' in PR commit messages. Aborting auto-bump."
-              exit 1
-          fi
-
-      - name: Check if version already bumped in PR
-        run: |
-          git fetch origin main --depth=1
-          BASE_VERSION=$(git show origin/main:package.json | node -e "const fs=require('fs');const data=fs.readFileSync(0,'utf8');console.log(JSON.parse(data).version);")
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "Base version: $BASE_VERSION"
-          echo "Current version: $CURRENT_VERSION"
-          if [ "$CURRENT_VERSION" != "$BASE_VERSION" ]; then
-              echo "✅ Version already bumped in this PR. Skipping auto-bump."
-              exit 0
-          fi
 
       - name: Configure Git
         run: |
@@ -135,9 +112,75 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "The new tag will trigger the Release workflow to publish to npm." >> $GITHUB_STEP_SUMMARY
 
-  release:
+  github-update:
     runs-on: ubuntu-latest
     needs: bump-version
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get package version
+        id: get_version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=v$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Package version: $PACKAGE_VERSION"
+
+      - name: Create Release Notes
+        id: changelog
+        run: |
+          # Get the latest tag or start from beginning if no previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # No previous tag, show all commits
+            CHANGELOG=$(git log --oneline | head -20)
+          else
+            CHANGELOG=$(git log $PREVIOUS_TAG..HEAD --oneline)
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_version.outputs.version }}
+          body: |
+            ## Installation
+            ```bash
+            npm install node-red-contrib-couchdb-nodes
+            ```
+            
+            ## Documentation
+            See [AGENTS.md](AGENTS.md) for comprehensive development documentation.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: GitHub Update Summary
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "## GitHub Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** v$PACKAGE_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release URL:** https://github.com/kanr/node-red-contrib-couchdb-nodes/releases/tag/v$PACKAGE_VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "GitHub release created successfully. Proceeding to npm publish." >> $GITHUB_STEP_SUMMARY
+
+  release:
+    runs-on: ubuntu-latest
+    needs: github-update
     # Skip if commit has [skip-release]
     if: "!contains(github.event.head_commit.message, '[skip-release]')"
     
@@ -173,56 +216,6 @@ jobs:
           echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=v$PACKAGE_VERSION" >> $GITHUB_OUTPUT
           echo "📦 Package version: $PACKAGE_VERSION"
-
-      - name: Create Release Notes
-        id: changelog
-        run: |
-          # Get the latest tag or start from beginning if no previous tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
-          
-          if [ -z "$PREVIOUS_TAG" ]; then
-            # No previous tag, show all commits
-            CHANGELOG=$(git log --oneline | head -20)
-          else
-            CHANGELOG=$(git log $PREVIOUS_TAG..HEAD --oneline)
-          fi
-          
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-        continue-on-error: true
-
-      - name: Create and push git tag
-        run: |
-          VERSION="${{ steps.get_version.outputs.VERSION }}"
-          
-          # Check if tag already exists
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            echo "✅ Tag $VERSION already exists"
-          else
-            echo "Creating tag: $VERSION"
-            git tag "$VERSION"
-            git push origin "$VERSION"
-          fi
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          name: Release ${{ steps.get_version.outputs.version }}
-          body: |
-            ## Installation
-            ```bash
-            npm install node-red-contrib-couchdb-nodes
-            ```
-            
-            ## Documentation
-            See [AGENTS.md](AGENTS.md) for comprehensive development documentation.
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if version exists on npm
         id: check_version
@@ -297,3 +290,5 @@ jobs:
             echo "- **Link:** https://www.npmjs.com/package/node-red-contrib-couchdb-nodes" >> $GITHUB_STEP_SUMMARY
             echo "- **GitHub Release:** https://github.com/kanr/node-red-contrib-couchdb-nodes/releases/tag/${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
           fi
+
+
