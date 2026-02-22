@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   release:
@@ -122,21 +121,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
-          CHANGELOG="${{ steps.changelog.outputs.changelog }}"
+          
+          # Create release notes file for proper formatting
+          cat > /tmp/release_notes.md << 'NOTES_EOF'
+          ## Changes
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ## Installation
+          ```bash
+          npm install node-red-contrib-couchdb-nodes
+          ```
+          
+          ## Documentation
+          See [AGENTS.md](AGENTS.md) for comprehensive development documentation.
+          NOTES_EOF
           
           echo "Creating release for $VERSION"
           gh release create "$VERSION" \
             --title "Release $VERSION" \
-            --notes "## Changes
-$CHANGELOG
-
-## Installation
-\`\`\`bash
-npm install node-red-contrib-couchdb-nodes
-\`\`\`
-
-## Documentation
-See [AGENTS.md](AGENTS.md) for comprehensive development documentation." \
+            --notes-file /tmp/release_notes.md \
             2>&1 || echo "Release creation completed with status: $?"
 
       - name: Create GitHub Release
@@ -170,8 +173,12 @@ See [AGENTS.md](AGENTS.md) for comprehensive development documentation." \
           echo "Event Name: ${{ github.event_name }}"
           echo "Ref: ${{ github.ref }}"
           echo "Detected Version: ${{ steps.get_version.outputs.VERSION }}"
-          echo "Release Creation Status: ${{ steps.create_release.outcome }}"
-          echo "Release URL: ${{ steps.create_release.outputs.html_url || 'Not created' }}"
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "Release Creation Status: ${{ steps.create_release.outcome }}"
+            echo "Release URL: ${{ steps.create_release.outputs.html_url || 'Not created' }}"
+          else
+            echo "Release Creation: Handled via gh CLI for manual dispatch"
+          fi
 
       - name: Check if version exists on npm
         id: check_version
