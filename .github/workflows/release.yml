@@ -45,22 +45,14 @@ jobs:
         run: npm test
 
       - name: Verify package version matches tag
+        if: github.event_name == 'push'
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
           
-          # If triggered by workflow_dispatch, only verify if a version was specified
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ ! -z "${{ github.event.inputs.version }}" ]; then
-            if [ "${{ github.event.inputs.version }}" != "$PACKAGE_VERSION" ]; then
-              echo "Error: Input version (${{ github.event.inputs.version }}) doesn't match package.json version ($PACKAGE_VERSION)"
-              exit 1
-            fi
-          # If triggered by tag push, verify tag matches package.json
-          elif [ "${{ github.event_name }}" = "push" ]; then
-            TAG_VERSION=${GITHUB_REF#refs/tags/v}
-            if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
-              echo "Error: Tag version ($TAG_VERSION) doesn't match package.json version ($PACKAGE_VERSION)"
-              exit 1
-            fi
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) doesn't match package.json version ($PACKAGE_VERSION)"
+            exit 1
           fi
           echo "✅ Version verified: $PACKAGE_VERSION"
 
