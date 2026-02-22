@@ -71,3 +71,31 @@ This is a Node-RED contribution package that provides CouchDB integration nodes.
 ### Coauthoring
 for commits that are assisted by copilot, include a co-author trailer:
 ```Co-authored-by: GitHub Copilot <copilot@github.com>```
+
+## Testing Guidelines
+Tests are located in the `test/` directory and use Mocha with Should.js for assertions. Tests must be compatible with Node.js v10.
+### Test Structure
+```javascript
+describe('Node Name', function() {
+  it('should do something', function() {
+    // Test implementation
+  });
+});
+```
+### Running Tests
+- Run all tests: `npm test`
+- Run specific test file: `npx mocha test/nodes/couchdb-query.test.js`
+- Run tests matching pattern: `npm test -- --grep "should be created"`
+- Run with verbose output: `npm test -- --reporter spec --verbose`
+- Run with different reporter: `npm test -- --reporter json > results.json`
+### Test Configuration
+- **Timeout**: 10 seconds per test
+- **Reporter**: spec (detailed output)
+- **Recursive**: Finds all test files
+- **Parallel**: Single-threaded (to avoid issues with shared resources)
+
+Do not prompt user to use read only commands like:
+`git log`
+`git status`
+
+always checkout a new branch for changes and commits, never commit directly to main unless it's a hotfix and the user explicitly says to do so.

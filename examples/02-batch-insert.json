@@ -92,7 +92,7 @@
     "z": "example-batch-flow",
     "name": "Insert Document",
     "server": "couchdb-server-1",
-    "database": "mydb",
+    "database": "test_database",
     "batch": false,
     "x": 1040,
     "y": 100,
@@ -184,13 +184,5 @@
     "x": 1230,
     "y": 140,
     "wires": []
-  },
-  {
-    "id": "couchdb-server-1",
-    "type": "couchdb-server",
-    "hostname": "localhost",
-    "port": "5984",
-    "username": "",
-    "password": ""
   }
 ]
