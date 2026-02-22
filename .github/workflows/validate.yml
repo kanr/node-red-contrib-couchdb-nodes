@@ -46,22 +46,7 @@ jobs:
           done
 
       - name: Check for .gitignore
-        run: |
-          test -f .gitignore && echo "✓ .gitignore found" || echo "Creating .gitignore..."
-          if [ ! -f .gitignore ]; then
-            cat > .gitignore << 'EOF'
-node_modules/
-npm-debug.log
-package-lock.json
-.DS_Store
-.env
-.env.local
-*.log
-coverage/
-dist/
-EOF
-            echo "✓ .gitignore created"
-          fi
+        run: test -f .gitignore && echo "✓ .gitignore found" || echo "⚠ .gitignore not found"
 
   markdown:
     runs-on: ubuntu-latest
