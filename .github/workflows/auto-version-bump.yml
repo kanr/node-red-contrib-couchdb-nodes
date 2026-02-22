@@ -119,7 +119,7 @@ jobs:
             BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
           fi
           git add package.json package-lock.json
-          git commit -m "bump: version to $NEW_VERSION [skip-version]"
+          git commit -m "bump: version to $NEW_VERSION"
           git push origin HEAD:refs/heads/"$BRANCH_NAME"
 
       - name: Create and push tag
