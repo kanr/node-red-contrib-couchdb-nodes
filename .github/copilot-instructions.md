@@ -70,4 +70,4 @@ This is a Node-RED contribution package that provides CouchDB integration nodes.
 
 ### Coauthoring
 for commits that are assisted by copilot, include a co-author trailer:
-```Co-authored-by: GitHub Copilot <noreply@github.com>```
+```Co-authored-by: GitHub Copilot <copilot@github.com>```
