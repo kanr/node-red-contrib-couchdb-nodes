@@ -50,6 +50,14 @@ jobs:
         with:
           node-version: '16.x'
 
+      - name: Check PR commits for bump keyword
+        run: |
+          git fetch origin main --depth=1
+          if git log --format=%s origin/main..HEAD | grep -i -q "bump: version to"; then
+            echo "❌ Found 'bump: version to' in PR commit messages. Aborting auto-bump."
+            exit 1
+          fi
+
       - name: Check if version already bumped in PR
         run: |
           git fetch origin main --depth=1
