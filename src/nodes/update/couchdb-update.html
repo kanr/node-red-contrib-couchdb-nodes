@@ -1,0 +1,90 @@
+<script type="text/javascript">
+  RED.nodes.registerType('couchdb-update', {
+    category: 'couchdb',
+    color: '#ff6b00',
+    defaults: {
+      name: { value: '' },
+      server: { type: 'couchdb-server', required: true },
+      database: { value: '', required: true }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: 'db.png',
+    label: function() {
+      return this.name || 'CouchDB Update';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="couchdb-update">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Update Document">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-database"><i class="fa fa-database"></i> Database</label>
+    <input type="text" id="node-input-database" placeholder="e.g. node-red-flows">
+  </div>
+
+  <div class="form-tips">
+    <p><strong>Input:</strong> msg.payload must be a document with _id and _rev fields</p>
+    <p><strong>Workflow:</strong> Get document first, modify it, then update</p>
+    <p><strong>Output 1 (Success):</strong> msg with result containing new _rev</p>
+    <p><strong>Output 2 (Error):</strong> msg with error information</p>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchdb-update">
+  <p>Updates an existing document in a CouchDB database.</p>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>The document to update. <strong>Must include:</strong>
+      <ul>
+        <li><code>_id</code> - The document ID</li>
+        <li><code>_rev</code> - The current revision (get this from Get node first)</li>
+      </ul>
+    </dd>
+    <dt class="optional">database <span class="property-type">string</span></dt>
+    <dd>Database name (overrides node config if provided)</dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <ol class="node-ports">
+    <li>Success Output
+      <dl class="message-properties">
+        <dt>result <span class="property-type">object</span></dt>
+        <dd>Result containing <code>_id</code>, <code>_rev</code> (new), and <code>ok: true</code></dd>
+        <dt>docId <span class="property-type">string</span></dt>
+        <dd>The document ID</dd>
+        <dt>docRev <span class="property-type">string</span></dt>
+        <dd>The new document revision</dd>
+      </dl>
+    </li>
+    <li>Error Output
+      <dl class="message-properties">
+        <dt>error <span class="property-type">object</span></dt>
+        <dd>Error details if update fails (e.g., conflict, not found)</dd>
+      </dl>
+    </li>
+  </ol>
+
+  <h3>Typical Workflow</h3>
+  <ol>
+    <li>Use <strong>CouchDB Get</strong> to retrieve the document</li>
+    <li>Modify the document in a function node</li>
+    <li>Use <strong>CouchDB Update</strong> to save changes</li>
+  </ol>
+
+  <h3>Example Flow</h3>
+  <pre>
+Inject → Get [doc_id] → Function [modify payload] → Update → Debug
+  </pre>
+</script>

@@ -1,0 +1,87 @@
+<script type="text/javascript">
+  RED.nodes.registerType('couchdb-create-db', {
+    category: 'couchdb',
+    color: '#ff6b00',
+    defaults: {
+      name: { value: '' },
+      server: { type: 'couchdb-server', required: true },
+      dbname: { value: '' }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: 'db.png',
+    label: function() {
+      return this.name || 'CouchDB Create DB';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="couchdb-create-db">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Create Database">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-dbname"><i class="fa fa-database"></i> Database Name</label>
+    <input type="text" id="node-input-dbname" placeholder="e.g. my-new-database">
+  </div>
+
+  <div class="form-tips">
+    <p><strong>Input:</strong> Database name from config or msg.dbname or msg.payload</p>
+    <p><strong>Output 1 (Success):</strong> msg with result and dbname</p>
+    <p><strong>Output 2 (Error):</strong> msg with error information</p>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchdb-create-db">
+  <p>Creates a new database in CouchDB.</p>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">dbname <span class="property-type">string</span></dt>
+    <dd>Database name to create (overrides node config if provided)</dd>
+    <dt class="optional">payload <span class="property-type">string</span></dt>
+    <dd>Database name if dbname not specified</dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <ol class="node-ports">
+    <li>Success Output
+      <dl class="message-properties">
+        <dt>result <span class="property-type">object</span></dt>
+        <dd>Result containing <code>ok: true</code></dd>
+        <dt>dbname <span class="property-type">string</span></dt>
+        <dd>The created database name</dd>
+      </dl>
+    </li>
+    <li>Error Output
+      <dl class="message-properties">
+        <dt>error <span class="property-type">object</span></dt>
+        <dd>Error details if creation fails (e.g., database already exists)</dd>
+      </dl>
+    </li>
+  </ol>
+
+  <h3>Details</h3>
+  <p>Creates a new database with the specified name. If the database already exists, 
+     an error will be returned on the second output.</p>
+
+  <h3>Database Naming Rules</h3>
+  <ul>
+    <li>Must begin with a lowercase letter</li>
+    <li>Can contain lowercase letters (a-z), digits (0-9), and special characters (_, $, (, ), +, -, /)</li>
+    <li>Cannot start with an underscore (_) unless it's a system database</li>
+  </ul>
+
+  <h3>Example</h3>
+  <pre>
+msg.dbname = "my-application-db";
+return msg;
+  </pre>
+</script>

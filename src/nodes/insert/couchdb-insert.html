@@ -1,0 +1,83 @@
+<script type="text/javascript">
+  RED.nodes.registerType('couchdb-insert', {
+    category: 'couchdb',
+    color: '#ff6b00',
+    defaults: {
+      name: { value: '' },
+      server: { type: 'couchdb-server', required: true },
+      database: { value: '', required: true }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: 'db.png',
+    label: function() {
+      return this.name || 'CouchDB Insert';
+    },
+    oneditprepare: function() {
+      // Custom validation if needed
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="couchdb-insert">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Insert Document">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-database"><i class="fa fa-database"></i> Database</label>
+    <input type="text" id="node-input-database" placeholder="e.g. node-red-flows">
+  </div>
+
+  <div class="form-tips">
+    <p><strong>Input:</strong> msg.payload should be a JSON object to insert</p>
+    <p><strong>Output 1 (Success):</strong> msg with result containing _id and _rev</p>
+    <p><strong>Output 2 (Error):</strong> msg with error information</p>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchdb-insert">
+  <p>Inserts a document into a CouchDB database.</p>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>A JSON object to insert into the database. Can optionally include <code>_id</code> to specify document ID.</dd>
+    <dt class="optional">database <span class="property-type">string</span></dt>
+    <dd>Database name (overrides node config if provided)</dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <ol class="node-ports">
+    <li>Success Output
+      <dl class="message-properties">
+        <dt>result <span class="property-type">object</span></dt>
+        <dd>Result containing <code>_id</code>, <code>_rev</code>, and <code>ok: true</code></dd>
+        <dt>docId <span class="property-type">string</span></dt>
+        <dd>The document ID</dd>
+        <dt>docRev <span class="property-type">string</span></dt>
+        <dd>The document revision</dd>
+      </dl>
+    </li>
+    <li>Error Output
+      <dl class="message-properties">
+        <dt>error <span class="property-type">object</span></dt>
+        <dd>Error details if insertion fails</dd>
+      </dl>
+    </li>
+  </ol>
+
+  <h3>Examples</h3>
+  <p><strong>Example Payload:</strong></p>
+  <pre>{
+  "name": "My Document",
+  "timestamp": "2026-02-21T14:00:00Z",
+  "value": 42
+}</pre>
+</script>

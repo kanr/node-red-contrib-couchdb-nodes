@@ -1,0 +1,108 @@
+<script type="text/javascript">
+  RED.nodes.registerType('couchdb-delete-db', {
+    category: 'couchdb',
+    color: '#ff6b00',
+    defaults: {
+      name: { value: '' },
+      server: { type: 'couchdb-server', required: true },
+      dbname: { value: '' },
+      confirmDelete: { value: false }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: 'db.png',
+    label: function() {
+      return this.name || 'CouchDB Delete DB';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="couchdb-delete-db">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Delete Database">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-dbname"><i class="fa fa-database"></i> Database Name</label>
+    <input type="text" id="node-input-dbname" placeholder="e.g. database-to-delete">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-confirmDelete">
+      <input type="checkbox" id="node-input-confirmDelete" style="display:inline-block; width:auto; vertical-align:baseline;">
+      <span> Confirm Delete (Required)</span>
+    </label>
+  </div>
+
+  <div class="form-tips" style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px;">
+    <p><strong>⚠️ WARNING:</strong> This will permanently delete the database and ALL its documents!</p>
+    <p><strong>Input:</strong> Database name from config or msg.dbname or msg.payload</p>
+    <p><strong>Output 1 (Success):</strong> msg with result and dbname</p>
+    <p><strong>Output 2 (Error):</strong> msg with error information</p>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchdb-delete-db">
+  <p>Deletes a database from CouchDB.</p>
+
+  <h3>⚠️ WARNING</h3>
+  <p style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107;">
+    <strong>This is a destructive operation!</strong><br>
+    Deleting a database will permanently remove the database and ALL documents within it.
+    This action cannot be undone.
+  </p>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt class="optional">dbname <span class="property-type">string</span></dt>
+    <dd>Database name to delete (overrides node config if provided)</dd>
+    <dt class="optional">payload <span class="property-type">string</span></dt>
+    <dd>Database name if dbname not specified</dd>
+    <dt class="optional">confirmDelete <span class="property-type">boolean</span></dt>
+    <dd>Set to <code>true</code> to confirm deletion (alternative to node config)</dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <ol class="node-ports">
+    <li>Success Output
+      <dl class="message-properties">
+        <dt>result <span class="property-type">object</span></dt>
+        <dd>Result containing <code>ok: true</code></dd>
+        <dt>dbname <span class="property-type">string</span></dt>
+        <dd>The deleted database name</dd>
+      </dl>
+    </li>
+    <li>Error Output
+      <dl class="message-properties">
+        <dt>error <span class="property-type">object</span></dt>
+        <dd>Error details if deletion fails (e.g., database not found)</dd>
+      </dl>
+    </li>
+  </ol>
+
+  <h3>Details</h3>
+  <p>Deletes the specified database. You must either:</p>
+  <ul>
+    <li>Check the "Confirm Delete" checkbox in the node configuration, OR</li>
+    <li>Set <code>msg.confirmDelete = true</code> in the flow</li>
+  </ul>
+
+  <h3>Safety</h3>
+  <p>The confirmation requirement helps prevent accidental database deletion. 
+     Consider using a switch or function node to add additional safety checks
+     before deleting production databases.</p>
+
+  <h3>Example Flow</h3>
+  <pre>
+// Function node before delete
+msg.dbname = "temp-database";
+msg.confirmDelete = true;  // Required for safety
+return msg;
+  </pre>
+</script>

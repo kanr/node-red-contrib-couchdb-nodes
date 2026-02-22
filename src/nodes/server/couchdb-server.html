@@ -1,0 +1,82 @@
+<script type="text/javascript">
+  RED.nodes.registerType('couchdb-server', {
+    category: 'config',
+    defaults: {
+      hostname: { value: 'localhost', required: true },
+      port: { value: 5984, required: true, validate: RED.validators.number() },
+      username: { value: '', required: true }
+    },
+    credentials: {
+      password: { type: 'password' }
+    },
+    label: function() {
+      return this.username + '@' + this.hostname + ':' + this.port;
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="couchdb-server">
+  <div class="form-row">
+    <label for="node-config-input-hostname"><i class="fa fa-address-book"></i> Hostname</label>
+    <input type="text" id="node-config-input-hostname" placeholder="localhost" style="width: 70%;">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-port"><i class="fa fa-plug"></i> Port</label>
+    <input type="number" id="node-config-input-port" placeholder="5984" style="width: 70%;">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
+    <input type="text" id="node-config-input-username" placeholder="admin" style="width: 70%;">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+    <input type="password" id="node-config-input-password" placeholder="password" style="width: 70%;">
+  </div>
+
+  <div class="form-tips">
+    <p><strong>Hostname:</strong> CouchDB server address (e.g., localhost, couchdb.example.com)</p>
+    <p><strong>Port:</strong> CouchDB port (default 5984)</p>
+    <p><strong>Username:</strong> CouchDB admin or valid user account</p>
+    <p><strong>Password:</strong> Will be stored securely in credentials</p>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchdb-server">
+  <p>Configuration node for connecting to a CouchDB server.</p>
+  <p>This node stores the CouchDB connection details (hostname, port, username, password)
+     and is used by all CouchDB operation nodes (Get, Insert, Update, Query).</p>
+
+  <h3>Configuration</h3>
+  <dl class="message-properties">
+    <dt>Hostname</dt>
+    <dd>The hostname or IP address of the CouchDB server</dd>
+    <dt>Port</dt>
+    <dd>The port CouchDB is listening on (typically 5984)</dd>
+    <dt>Username</dt>
+    <dd>Valid CouchDB user with database access</dd>
+    <dt>Password</dt>
+    <dd>Password for the user (stored securely in Node-RED)</dd>
+  </dl>
+
+  <h3>Examples</h3>
+  <h4>Local Development</h4>
+  <ul>
+    <li>Hostname: <code>localhost</code></li>
+    <li>Port: <code>5984</code></li>
+    <li>Username: <code>admin</code></li>
+  </ul>
+
+  <h4>Kubernetes</h4>
+  <ul>
+    <li>Hostname: <code>node-red-kanr-couchdb.node-red-dev.svc.cluster.local</code></li>
+    <li>Port: <code>5984</code></li>
+    <li>Username: <code>admin</code></li>
+  </ul>
+
+  <h3>Using with Operation Nodes</h3>
+  <p>Once created, select this server configuration in any CouchDB operation node
+     (Get, Insert, Update, Query). All nodes will use the same connection.</p>
+</script>

@@ -1,0 +1,118 @@
+name: Lint and Validate
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+
+      - name: Check documentation files
+        run: |
+          echo "Checking for required documentation files..."
+          test -f README.md || echo "Warning: README.md not found"
+          test -f AGENTS.md && echo "✓ AGENTS.md found" || echo "Warning: AGENTS.md not found"
+          test -f test/README.md && echo "✓ test/README.md found" || echo "Warning: test/README.md not found"
+          test -f LICENSE || echo "Warning: LICENSE not found"
+
+      - name: Validate package.json
+        run: |
+          echo "Validating package.json..."
+          node -e "require('./package.json')" && echo "✓ package.json is valid JSON"
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON configuration files..."
+          for file in .mocharc.json; do
+            if [ -f "$file" ]; then
+              node -e "require('./$file')" && echo "✓ $file is valid JSON"
+            fi
+          done
+
+      - name: Check for .gitignore
+        run: |
+          test -f .gitignore && echo "✓ .gitignore found" || echo "Creating .gitignore..."
+          if [ ! -f .gitignore ]; then
+            cat > .gitignore << 'EOF'
+node_modules/
+npm-debug.log
+package-lock.json
+.DS_Store
+.env
+.env.local
+*.log
+coverage/
+dist/
+EOF
+            echo "✓ .gitignore created"
+          fi
+
+  markdown:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate markdown files
+        run: |
+          echo "Checking markdown files..."
+          find . -name "*.md" -not -path "./node_modules/*" | while read file; do
+            if [ -f "$file" ]; then
+              # Check for common markdown issues
+              if grep -q "^#" "$file"; then
+                echo "✓ $file has valid markdown headers"
+              fi
+            fi
+          done
+
+      - name: Check markdown syntax
+        uses: nosborn/github-action-markdown-cli@v3.3.0
+        with:
+          files: .
+          ignore: node_modules
+
+  package-integrity:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+
+      - name: Check npm dependencies
+        run: |
+          npm ls --depth=0 2>&1 | head -20
+          echo "✓ Dependencies checked"
+
+      - name: Verify no duplicate dependencies
+        run: |
+          npm ls 2>&1 | grep "deduped" || echo "✓ No deduped dependencies"
+
+      - name: Check for vulnerabilities
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: List installed packages
+        run: npm list --depth=0

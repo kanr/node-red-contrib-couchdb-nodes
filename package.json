@@ -1,0 +1,56 @@
+{
+  "name": "node-red-contrib-couchdb-nodes",
+  "version": "1.0.0",
+  "description": "Node-RED nodes for CouchDB CRUD operations",
+  "main": "src/nodes/index.js",
+  "scripts": {
+    "test": "mocha test/**/*.test.js --timeout 10000 --recursive"
+  },
+  "keywords": [
+    "node-red",
+    "couchdb",
+    "database",
+    "crud"
+  ],
+  "author": "kanr",
+  "license": "MIT",
+  "node-red": {
+    "nodes": {
+      "couchdb-server": "src/nodes/server/couchdb-server.js",
+      "couchdb-insert": "src/nodes/insert/couchdb-insert.js",
+      "couchdb-get": "src/nodes/get/couchdb-get.js",
+      "couchdb-query": "src/nodes/query/couchdb-query.js",
+      "couchdb-update": "src/nodes/update/couchdb-update.js",
+      "couchdb-create-db": "src/nodes/create-db/couchdb-create-db.js",
+      "couchdb-delete-db": "src/nodes/delete-db/couchdb-delete-db.js",
+      "couchdb-list-dbs": "src/nodes/list-dbs/couchdb-list-dbs.js",
+      "couchdb-list-docs": "src/nodes/list-docs/couchdb-list-docs.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kanr/nodered-k8s.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kanr/nodered-k8s/issues"
+  },
+  "homepage": "https://github.com/kanr/nodered-k8s#readme",
+  "devDependencies": {
+    "mocha": "^8.4.0",
+    "should": "^13.2.3"
+  },
+  "dependencies": {
+    "nano": "^10.0.0"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
