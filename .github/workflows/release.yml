@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -105,28 +106,43 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           VERSION="${{ steps.get_version.outputs.VERSION }}"
-          # Check if tag already exists
+          echo "🏷️ Processing version: $VERSION"
+          
+          # Check if tag already exists locally
           if git rev-parse "$VERSION" >/dev/null 2>&1; then
             echo "✅ Tag $VERSION already exists locally"
           else
             echo "Creating tag: $VERSION"
             git tag "$VERSION"
           fi
+
+      - name: Create GitHub Release for manual dispatch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          CHANGELOG="${{ steps.changelog.outputs.changelog }}"
           
-          # Always ensure remote is up to date
-          git fetch origin --tags || true
-          
-          # Push the specific tag
-          if ! git ls-remote --tags origin | grep -q "$VERSION"; then
-            echo "Pushing tag $VERSION to remote"
-            git push origin "$VERSION"
-          else
-            echo "✅ Tag $VERSION already exists on remote"
-          fi
+          echo "Creating release for $VERSION"
+          gh release create "$VERSION" \
+            --title "Release $VERSION" \
+            --notes "## Changes
+$CHANGELOG
+
+## Installation
+\`\`\`bash
+npm install node-red-contrib-couchdb-nodes
+\`\`\`
+
+## Documentation
+See [AGENTS.md](AGENTS.md) for comprehensive development documentation." \
+            2>&1 || echo "Release creation completed with status: $?"
 
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
