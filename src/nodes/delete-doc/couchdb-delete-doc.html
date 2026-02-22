@@ -1,0 +1,106 @@
+<script type="text/javascript">
+  RED.nodes.registerType('couchdb-delete-doc', {
+    category: 'couchdb',
+    color: '#ff6b00',
+    defaults: {
+      name: { value: '' },
+      server: { type: 'couchdb-server', required: true },
+      database: { value: '', required: true },
+      docId: { value: '' }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: 'db.png',
+    label: function() {
+      return this.name || 'CouchDB Delete Doc';
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="couchdb-delete-doc">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Delete Document">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-server"></i> Server</label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-database"><i class="fa fa-database"></i> Database</label>
+    <input type="text" id="node-input-database" placeholder="e.g. node-red-flows">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-docId"><i class="fa fa-file"></i> Document ID</label>
+    <input type="text" id="node-input-docId" placeholder="Leave empty to use msg.docId">
+  </div>
+
+  <div class="form-tips">
+    <p><strong>Input:</strong> msg.docRev must contain the current document revision</p>
+    <p><strong>Workflow:</strong> Get document first, then delete (uses msg.docRev)</p>
+    <p><strong>Output 1 (Success):</strong> msg with deletion confirmation</p>
+    <p><strong>Output 2 (Error):</strong> msg with error information</p>
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="couchdb-delete-doc">
+  <p>Deletes a document from a CouchDB database by ID.</p>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>docId <span class="property-type">string</span></dt>
+    <dd>The document ID to delete (overrides node config if provided)</dd>
+    <dt>docRev <span class="property-type">string</span></dt>
+    <dd>The current document revision (required). Must be obtained from a Get node</dd>
+    <dt class="optional">database <span class="property-type">string</span></dt>
+    <dd>Database name (overrides node config if provided)</dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <ol class="node-ports">
+    <li>Success Output
+      <dl class="message-properties">
+        <dt>result <span class="property-type">object</span></dt>
+        <dd>Deletion result containing <code>id</code>, <code>rev</code>, and <code>ok: true</code></dd>
+        <dt>docId <span class="property-type">string</span></dt>
+        <dd>The deleted document ID</dd>
+        <dt>docRev <span class="property-type">string</span></dt>
+        <dd>The deletion marker revision</dd>
+      </dl>
+    </li>
+    <li>Error Output
+      <dl class="message-properties">
+        <dt>error <span class="property-type">object</span></dt>
+        <dd>Error details if deletion fails (e.g., conflict, not found, missing revision)</dd>
+      </dl>
+    </li>
+  </ol>
+
+  <h3>Details</h3>
+  <p>CouchDB doesn't permanently delete documents. Instead, it marks them with a deletion tombstone so that
+    the deletion can be replicated across databases.</p>
+  
+  <p><strong>Important:</strong> You must provide the current document revision. This is part of CouchDB's
+    optimistic concurrency control to prevent accidental overwrites.</p>
+
+  <h3>Typical Workflow</h3>
+  <ol>
+    <li>Use <strong>CouchDB Get</strong> to retrieve the document (gets <code>msg.docRev</code>)</li>
+    <li>Use <strong>CouchDB Delete Doc</strong> to delete it</li>
+  </ol>
+
+  <h3>Example Flow</h3>
+  <pre>
+Inject [docId] → Get → Delete Doc → Debug
+  </pre>
+
+  <h3>Error Handling</h3>
+  <ul>
+    <li><strong>409 Conflict:</strong> The provided revision doesn't match. Get the document again.</li>
+    <li><strong>404 Not Found:</strong> The document doesn't exist.</li>
+    <li><strong>Missing revision error:</strong> Document revision must be provided via msg.docRev</li>
+  </ul>
+</script>

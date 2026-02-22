@@ -17,24 +17,43 @@
 # - Value: (paste token)
 ```
 
-## Publish New Version (30 seconds)
+## Publish New Version
+
+### Recommended: Version Bump via PR
 
 ```bash
-# Update version
-npm version patch   # 1.0.0 → 1.0.1
-# or
-npm version minor   # 1.0.0 → 1.1.0
-# or
-npm version major   # 1.0.0 → 2.0.0
+# 1. Checkout new branch from main
+git checkout -b bump/version-0.1.2 origin/main
 
-# Push with tags
-git push origin main --tags
+# 2. Update version in package.json
+# Change "version": "0.1.1" to "version": "0.1.2"
 
-# Done! GitHub Actions will:
-# ✅ Run tests
-# ✅ Publish to npm
-# ✅ Create GitHub Release
+# 3. Update package-lock.json
+npm install --package-lock-only
+
+# 4. Commit and push
+git add package.json package-lock.json
+git commit -m "Bump version to 0.1.2"
+git push -u origin bump/version-0.1.2
+
+# 5. Create and merge PR
+gh pr create --title "Bump version to 0.1.2" --body "Patch version bump"
+gh pr merge --merge
+
+# 6. Create release tag
+git checkout main && git pull
+git tag v0.1.2
+git push origin v0.1.2
 ```
+
+**GitHub Actions will automatically:**
+- ✅ Run tests
+- ✅ Publish to npm
+- ✅ Create GitHub Release
+
+### Alternative: Auto-versioning (WIP)
+
+The `auto-version-bump.yml` workflow is available but currently skips documentation-only changes. For code changes to `src/` or `test/`, versioning may happen automatically.
 
 ## Watch Progress
 
