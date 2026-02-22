@@ -1,0 +1,113 @@
+[
+  {
+    "id": "example-insert-flow",
+    "type": "tab",
+    "label": "CouchDB Insert Example",
+    "disabled": false,
+    "info": "Example flow demonstrating document insertion into CouchDB."
+  },
+  {
+    "id": "inject-insert",
+    "type": "inject",
+    "z": "example-insert-flow",
+    "name": "Trigger Insert",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 100,
+    "wires": [
+      [
+        "create-document"
+      ]
+    ]
+  },
+  {
+    "id": "create-document",
+    "type": "function",
+    "z": "example-insert-flow",
+    "name": "Create Document",
+    "func": "// Create a document to insert\nmsg.payload = {\n    type: \"product\",\n    name: \"Laptop\",\n    brand: \"TechCorp\",\n    price: 999.99,\n    inStock: true,\n    tags: [\"electronics\", \"computers\"],\n    createdAt: new Date().toISOString()\n};\n\n// Optionally override database\nmsg.database = \"products\";\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 340,
+    "y": 100,
+    "wires": [
+      [
+        "couchdb-insert"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-insert",
+    "type": "couchdb-insert",
+    "z": "example-insert-flow",
+    "name": "Insert into CouchDB",
+    "server": "couchdb-server-1",
+    "database": "mydb",
+    "batch": false,
+    "x": 570,
+    "y": 100,
+    "wires": [
+      [
+        "debug-success"
+      ],
+      [
+        "debug-error"
+      ]
+    ]
+  },
+  {
+    "id": "debug-success",
+    "type": "debug",
+    "z": "example-insert-flow",
+    "name": "Insert Success",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 810,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "debug-error",
+    "type": "debug",
+    "z": "example-insert-flow",
+    "name": "Insert Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 800,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "couchdb-server-1",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": "5984",
+    "username": "",
+    "password": ""
+  }
+]

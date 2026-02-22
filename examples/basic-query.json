@@ -1,0 +1,118 @@
+[
+  {
+    "id": "example-query-flow",
+    "type": "tab",
+    "label": "CouchDB Query Example",
+    "disabled": false,
+    "info": "Example flow demonstrating CouchDB view queries with filtering and pagination."
+  },
+  {
+    "id": "inject-query",
+    "type": "inject",
+    "z": "example-query-flow",
+    "name": "Trigger Query",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 130,
+    "y": 100,
+    "wires": [
+      [
+        "setup-query"
+      ]
+    ]
+  },
+  {
+    "id": "setup-query",
+    "type": "function",
+    "z": "example-query-flow",
+    "name": "Setup Query Parameters",
+    "func": "// Override database and view\nmsg.database = \"mydb\";\nmsg.view = \"design_doc/view_name\";\n\n// Optional: Filter by key\nmsg.key = \"some-key\";\n\n// Optional: Pagination\nmsg.limit = 10;\nmsg.skip = 0;\n\n// Optional: Include full documents\nmsg.include_docs = true;\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 350,
+    "y": 100,
+    "wires": [
+      [
+        "couchdb-query"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-query",
+    "type": "couchdb-query",
+    "z": "example-query-flow",
+    "name": "Query CouchDB View",
+    "server": "couchdb-server-1",
+    "database": "mydb",
+    "view": "design_doc/view_name",
+    "include_docs": true,
+    "key": "",
+    "limit": 10,
+    "skip": 0,
+    "descending": false,
+    "x": 590,
+    "y": 100,
+    "wires": [
+      [
+        "debug-success"
+      ],
+      [
+        "debug-error"
+      ]
+    ]
+  },
+  {
+    "id": "debug-success",
+    "type": "debug",
+    "z": "example-query-flow",
+    "name": "Query Success",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 820,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "debug-error",
+    "type": "debug",
+    "z": "example-query-flow",
+    "name": "Query Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 810,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "couchdb-server-1",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": "5984",
+    "username": "",
+    "password": ""
+  }
+]

@@ -1,0 +1,247 @@
+[
+  {
+    "id": "example-db-mgmt-flow",
+    "type": "tab",
+    "label": "CouchDB Database Management",
+    "disabled": false,
+    "info": "Example demonstrating database creation, listing, and deletion."
+  },
+  {
+    "id": "inject-create-db",
+    "type": "inject",
+    "z": "example-db-mgmt-flow",
+    "name": "1. Create Database",
+    "props": [
+      {
+        "p": "database",
+        "v": "test_database",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 140,
+    "y": 80,
+    "wires": [
+      [
+        "couchdb-create-db"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-create-db",
+    "type": "couchdb-create-db",
+    "z": "example-db-mgmt-flow",
+    "name": "Create DB",
+    "server": "couchdb-server-1",
+    "database": "test_database",
+    "x": 340,
+    "y": 80,
+    "wires": [
+      [
+        "debug-create-success"
+      ],
+      [
+        "debug-create-error"
+      ]
+    ]
+  },
+  {
+    "id": "debug-create-success",
+    "type": "debug",
+    "z": "example-db-mgmt-flow",
+    "name": "Created",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 520,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "debug-create-error",
+    "type": "debug",
+    "z": "example-db-mgmt-flow",
+    "name": "Create Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 530,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "inject-list-dbs",
+    "type": "inject",
+    "z": "example-db-mgmt-flow",
+    "name": "2. List Databases",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 180,
+    "wires": [
+      [
+        "couchdb-list-dbs"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-list-dbs",
+    "type": "couchdb-list-dbs",
+    "z": "example-db-mgmt-flow",
+    "name": "List DBs",
+    "server": "couchdb-server-1",
+    "x": 340,
+    "y": 180,
+    "wires": [
+      [
+        "debug-list-success"
+      ],
+      [
+        "debug-list-error"
+      ]
+    ]
+  },
+  {
+    "id": "debug-list-success",
+    "type": "debug",
+    "z": "example-db-mgmt-flow",
+    "name": "Database List",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 530,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "debug-list-error",
+    "type": "debug",
+    "z": "example-db-mgmt-flow",
+    "name": "List Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 520,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "inject-delete-db",
+    "type": "inject",
+    "z": "example-db-mgmt-flow",
+    "name": "3. Delete Database",
+    "props": [
+      {
+        "p": "database",
+        "v": "test_database",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 140,
+    "y": 280,
+    "wires": [
+      [
+        "couchdb-delete-db"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-delete-db",
+    "type": "couchdb-delete-db",
+    "z": "example-db-mgmt-flow",
+    "name": "Delete DB",
+    "server": "couchdb-server-1",
+    "database": "test_database",
+    "x": 340,
+    "y": 280,
+    "wires": [
+      [
+        "debug-delete-success"
+      ],
+      [
+        "debug-delete-error"
+      ]
+    ]
+  },
+  {
+    "id": "debug-delete-success",
+    "type": "debug",
+    "z": "example-db-mgmt-flow",
+    "name": "Deleted",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 520,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "debug-delete-error",
+    "type": "debug",
+    "z": "example-db-mgmt-flow",
+    "name": "Delete Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 530,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "couchdb-server-1",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": "5984",
+    "username": "",
+    "password": ""
+  }
+]

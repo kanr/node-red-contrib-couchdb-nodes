@@ -5,6 +5,8 @@ Node-RED nodes for performing CRUD operations on Apache CouchDB databases.
 [![npm version](https://badge.fury.io/js/node-red-contrib-couchdb-nodes.svg)](https://www.npmjs.com/package/node-red-contrib-couchdb-nodes)
 [![Node.js CI](https://github.com/kanr/node-red-contrib-couchdb-nodes/workflows/Test/badge.svg)](https://github.com/kanr/node-red-contrib-couchdb-nodes/actions)
 
+[![Node-Red Flows](https://flows.nodered.org/node/node-red-contrib-couchdb-nodes)]
+
 ## Features
 
 - **Server Configuration**: Centralized CouchDB connection management with authentication
@@ -22,6 +24,19 @@ Install via Node-RED's palette manager or run:
 ```bash
 npm install node-red-contrib-couchdb-nodes
 ```
+
+## Quick Start
+
+Check out the [example flows](examples/README.md) to get started quickly:
+
+- **[basic-query.json](examples/basic-query.json)** - Query documents from CouchDB views
+- **[insert-document.json](examples/insert-document.json)** - Insert new documents
+- **[get-update-document.json](examples/get-update-document.json)** - Get and update documents safely
+- **[database-management.json](examples/database-management.json)** - Create, list, and delete databases
+- **[pagination-example.json](examples/pagination-example.json)** - Paginate through large result sets
+- **[batch-insert.json](examples/batch-insert.json)** - Insert multiple documents
+
+Import any example into Node-RED to see it in action!
 
 ## Requirements
 

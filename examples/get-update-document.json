@@ -1,0 +1,171 @@
+[
+  {
+    "id": "example-update-flow",
+    "type": "tab",
+    "label": "CouchDB Get-Update Example",
+    "disabled": false,
+    "info": "Example showing the get-modify-update pattern with revision control."
+  },
+  {
+    "id": "inject-update",
+    "type": "inject",
+    "z": "example-update-flow",
+    "name": "Trigger Update",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "docId",
+        "v": "product-123",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "set-database"
+      ]
+    ]
+  },
+  {
+    "id": "set-database",
+    "type": "function",
+    "z": "example-update-flow",
+    "name": "Set Database",
+    "func": "msg.database = \"products\";\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 330,
+    "y": 100,
+    "wires": [
+      [
+        "couchdb-get"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-get",
+    "type": "couchdb-get",
+    "z": "example-update-flow",
+    "name": "Get Document",
+    "server": "couchdb-server-1",
+    "database": "mydb",
+    "docId": "",
+    "x": 510,
+    "y": 100,
+    "wires": [
+      [
+        "modify-document"
+      ],
+      [
+        "debug-get-error"
+      ]
+    ]
+  },
+  {
+    "id": "modify-document",
+    "type": "function",
+    "z": "example-update-flow",
+    "name": "Modify Document",
+    "func": "// Document is in msg.payload with _id and _rev\n// Modify the fields you want to update\n\nif (msg.payload.price) {\n    // Apply a 10% discount\n    msg.payload.price = msg.payload.price * 0.9;\n}\n\nmsg.payload.lastModified = new Date().toISOString();\nmsg.payload.discount = true;\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 700,
+    "y": 100,
+    "wires": [
+      [
+        "couchdb-update"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-update",
+    "type": "couchdb-update",
+    "z": "example-update-flow",
+    "name": "Update Document",
+    "server": "couchdb-server-1",
+    "database": "mydb",
+    "x": 910,
+    "y": 100,
+    "wires": [
+      [
+        "debug-update-success"
+      ],
+      [
+        "debug-update-error"
+      ]
+    ]
+  },
+  {
+    "id": "debug-update-success",
+    "type": "debug",
+    "z": "example-update-flow",
+    "name": "Update Success",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1130,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "debug-update-error",
+    "type": "debug",
+    "z": "example-update-flow",
+    "name": "Update Error (409 = Conflict)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1170,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "debug-get-error",
+    "type": "debug",
+    "z": "example-update-flow",
+    "name": "Get Error (404 = Not Found)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 740,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "couchdb-server-1",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": "5984",
+    "username": "",
+    "password": ""
+  }
+]

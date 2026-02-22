@@ -1,0 +1,186 @@
+[
+  {
+    "id": "example-pagination-flow",
+    "type": "tab",
+    "label": "CouchDB Pagination Example",
+    "disabled": false,
+    "info": "Advanced example showing pagination through large result sets."
+  },
+  {
+    "id": "inject-first-page",
+    "type": "inject",
+    "z": "example-pagination-flow",
+    "name": "First Page",
+    "props": [
+      {
+        "p": "page",
+        "v": "0",
+        "vt": "num"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 110,
+    "y": 80,
+    "wires": [
+      [
+        "calculate-pagination"
+      ]
+    ]
+  },
+  {
+    "id": "inject-second-page",
+    "type": "inject",
+    "z": "example-pagination-flow",
+    "name": "Second Page",
+    "props": [
+      {
+        "p": "page",
+        "v": "1",
+        "vt": "num"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 120,
+    "y": 120,
+    "wires": [
+      [
+        "calculate-pagination"
+      ]
+    ]
+  },
+  {
+    "id": "inject-third-page",
+    "type": "inject",
+    "z": "example-pagination-flow",
+    "name": "Third Page",
+    "props": [
+      {
+        "p": "page",
+        "v": "2",
+        "vt": "num"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 110,
+    "y": 160,
+    "wires": [
+      [
+        "calculate-pagination"
+      ]
+    ]
+  },
+  {
+    "id": "calculate-pagination",
+    "type": "function",
+    "z": "example-pagination-flow",
+    "name": "Calculate Pagination",
+    "func": "// Configuration\nvar pageSize = 20;\nvar pageNumber = msg.page || 0;\n\n// Calculate limit and skip\nmsg.limit = pageSize;\nmsg.skip = pageNumber * pageSize;\n\n// Set database and view\nmsg.database = \"mydb\";\nmsg.view = \"design_doc/all\";\nmsg.include_docs = true;\n\n// Store page info for display\nmsg.pageInfo = {\n    page: pageNumber,\n    pageSize: pageSize,\n    skip: msg.skip,\n    limit: msg.limit\n};\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 350,
+    "y": 120,
+    "wires": [
+      [
+        "couchdb-query"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-query",
+    "type": "couchdb-query",
+    "z": "example-pagination-flow",
+    "name": "Query Page",
+    "server": "couchdb-server-1",
+    "database": "mydb",
+    "view": "design_doc/all",
+    "include_docs": true,
+    "key": "",
+    "limit": 20,
+    "skip": 0,
+    "descending": false,
+    "x": 570,
+    "y": 120,
+    "wires": [
+      [
+        "format-results"
+      ],
+      [
+        "debug-error"
+      ]
+    ]
+  },
+  {
+    "id": "format-results",
+    "type": "function",
+    "z": "example-pagination-flow",
+    "name": "Format Results",
+    "func": "// Add pagination info to results\nvar results = msg.payload;\nvar pageInfo = msg.pageInfo;\n\nmsg.payload = {\n    page: pageInfo.page,\n    pageSize: pageInfo.pageSize,\n    resultsCount: results.rows ? results.rows.length : 0,\n    totalRows: results.total_rows,\n    hasMore: (pageInfo.skip + pageInfo.pageSize) < results.total_rows,\n    results: results.rows\n};\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 750,
+    "y": 120,
+    "wires": [
+      [
+        "debug-results"
+      ]
+    ]
+  },
+  {
+    "id": "debug-results",
+    "type": "debug",
+    "z": "example-pagination-flow",
+    "name": "Page Results",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 940,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "debug-error",
+    "type": "debug",
+    "z": "example-pagination-flow",
+    "name": "Query Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 750,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "couchdb-server-1",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": "5984",
+    "username": "",
+    "password": ""
+  }
+]

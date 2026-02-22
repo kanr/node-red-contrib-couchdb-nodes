@@ -1,0 +1,196 @@
+[
+  {
+    "id": "example-batch-flow",
+    "type": "tab",
+    "label": "CouchDB Batch Insert Example",
+    "disabled": false,
+    "info": "Example demonstrating insertion of multiple documents."
+  },
+  {
+    "id": "inject-batch",
+    "type": "inject",
+    "z": "example-batch-flow",
+    "name": "Trigger Batch Insert",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "create-documents-array"
+      ]
+    ]
+  },
+  {
+    "id": "create-documents-array",
+    "type": "function",
+    "z": "example-batch-flow",
+    "name": "Create Documents Array",
+    "func": "// Create an array of documents to insert\nmsg.documents = [\n    {\n        type: \"product\",\n        name: \"Laptop\",\n        price: 999.99\n    },\n    {\n        type: \"product\",\n        name: \"Mouse\",\n        price: 29.99\n    },\n    {\n        type: \"product\",\n        name: \"Keyboard\",\n        price: 79.99\n    },\n    {\n        type: \"product\",\n        name: \"Monitor\",\n        price: 299.99\n    }\n];\n\n// Initialize counter\nmsg.totalDocs = msg.documents.length;\nmsg.insertedCount = 0;\nmsg.database = \"products\";\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 380,
+    "y": 100,
+    "wires": [
+      [
+        "split-array"
+      ]
+    ]
+  },
+  {
+    "id": "split-array",
+    "type": "split",
+    "z": "example-batch-flow",
+    "name": "Split into Messages",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "x": 620,
+    "y": 100,
+    "wires": [
+      [
+        "prepare-insert"
+      ]
+    ]
+  },
+  {
+    "id": "prepare-insert",
+    "type": "function",
+    "z": "example-batch-flow",
+    "name": "Prepare Single Insert",
+    "func": "// Move the single document from array item to payload\nmsg.payload = msg.payload;\n\n// Add timestamp\nmsg.payload.createdAt = new Date().toISOString();\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 830,
+    "y": 100,
+    "wires": [
+      [
+        "couchdb-insert"
+      ]
+    ]
+  },
+  {
+    "id": "couchdb-insert",
+    "type": "couchdb-insert",
+    "z": "example-batch-flow",
+    "name": "Insert Document",
+    "server": "couchdb-server-1",
+    "database": "mydb",
+    "batch": false,
+    "x": 1040,
+    "y": 100,
+    "wires": [
+      [
+        "join-results"
+      ],
+      [
+        "debug-insert-error"
+      ]
+    ]
+  },
+  {
+    "id": "join-results",
+    "type": "join",
+    "z": "example-batch-flow",
+    "name": "Join Results",
+    "mode": "auto",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "accumulate": false,
+    "timeout": "",
+    "count": "",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 1230,
+    "y": 100,
+    "wires": [
+      [
+        "format-summary"
+      ]
+    ]
+  },
+  {
+    "id": "format-summary",
+    "type": "function",
+    "z": "example-batch-flow",
+    "name": "Format Summary",
+    "func": "// Create summary of batch insert\nvar results = msg.payload;\n\nmsg.payload = {\n    totalInserted: Array.isArray(results) ? results.length : 0,\n    results: results,\n    completedAt: new Date().toISOString()\n};\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 1420,
+    "y": 100,
+    "wires": [
+      [
+        "debug-summary"
+      ]
+    ]
+  },
+  {
+    "id": "debug-summary",
+    "type": "debug",
+    "z": "example-batch-flow",
+    "name": "Batch Summary",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1620,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "debug-insert-error",
+    "type": "debug",
+    "z": "example-batch-flow",
+    "name": "Insert Error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1230,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "couchdb-server-1",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": "5984",
+    "username": "",
+    "password": ""
+  }
+]
