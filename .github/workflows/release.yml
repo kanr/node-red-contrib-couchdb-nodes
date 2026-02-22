@@ -112,11 +112,18 @@ jobs:
           git commit -m "bump: version to $NEW_VERSION"
           git push origin HEAD:refs/heads/"$BRANCH_NAME"
 
-      - name: Create and push tag
+      - name: Create and push git tag
         run: |
-          NEW_VERSION="${{ steps.bump_version.outputs.new_version }}"
-          git tag "v$NEW_VERSION"
-          git push origin "v$NEW_VERSION"
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          
+          # Check if tag already exists
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "✅ Tag $VERSION already exists"
+          else
+            echo "Creating tag: $VERSION"
+            git tag "$VERSION"
+            git push origin "$VERSION"
+          fi
 
       - name: Summary
         run: |
