@@ -144,9 +144,22 @@ jobs:
         if: steps.check_version.outputs.exists == 'false'
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          sleep 5  # Give npm a moment to update
-          npm view node-red-contrib-couchdb-nodes@$PACKAGE_VERSION
-          echo "✅ Package verified on npm registry"
+          ATTEMPT=1
+          MAX_ATTEMPTS=6
+          SLEEP_SECONDS=5
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "🔎 Checking npm for version $PACKAGE_VERSION (attempt $ATTEMPT/$MAX_ATTEMPTS)"
+            if npm view node-red-contrib-couchdb-nodes@$PACKAGE_VERSION >/dev/null 2>&1; then
+              echo "✅ Package verified on npm registry"
+              exit 0
+            fi
+            sleep $SLEEP_SECONDS
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          echo "❌ Package not found on npm after $MAX_ATTEMPTS attempts"
+          exit 1
 
       - name: Publish summary
         run: |
