@@ -31,7 +31,7 @@ This guide walks you through publishing your Node-RED CouchDB nodes package to n
 
 1. **Go to your GitHub repository**:
    ```
-   https://github.com/kanr/nodered-k8s/settings/secrets/actions
+   https://github.com/kanr/node-red-contrib-couchdb-nodes/settings/secrets/actions
    ```
 
 2. **Create new secret**:
@@ -207,7 +207,7 @@ EOF
    ```
 
 3. **Watch GitHub Actions**:
-   - Go to: https://github.com/kanr/nodered-k8s/actions
+   - Go to: https://github.com/kanr/node-red-contrib-couchdb-nodes/actions
    - Click the **"Release"** workflow run
    - Monitor progress (usually 2-3 minutes)
 
@@ -375,7 +375,7 @@ git push origin main --tags
 ### GitHub Actions failing
 
 **Check workflow logs**:
-1. Go to: https://github.com/kanr/nodered-k8s/actions
+1. Go to: https://github.com/kanr/node-red-contrib-couchdb-nodes/actions
 2. Click the failed run
 3. Expand failed job
 4. Review error messages
@@ -455,5 +455,5 @@ npm install node-red-contrib-couchdb-nodes
 ## Need Help?
 
 - npm support: https://www.npmjs.com/support
-- GitHub Actions: https://github.com/kanr/nodered-k8s/actions
+- GitHub Actions: https://github.com/kanr/node-red-contrib-couchdb-nodes/actions
 - Node-RED forum: https://discourse.nodered.org/

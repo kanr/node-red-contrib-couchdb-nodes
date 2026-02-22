@@ -11,7 +11,7 @@
 
 ### 2. Add to GitHub Secrets
 ```bash
-# Visit: https://github.com/kanr/nodered-k8s/settings/secrets/actions
+# Visit: https://github.com/kanr/node-red-contrib-couchdb-nodes/settings/secrets/actions
 # - Click "New repository secret"
 # - Name: NPM_TOKEN
 # - Value: (paste token)
@@ -40,7 +40,7 @@ git push origin main --tags
 
 ```bash
 # View in browser:
-open https://github.com/kanr/nodered-k8s/actions
+open https://github.com/kanr/node-red-contrib-couchdb-nodes/actions
 
 # Or use GitHub CLI:
 gh run list
@@ -122,4 +122,4 @@ Run the setup script:
 
 Or check:
 - npm docs: https://docs.npmjs.com/
-- GitHub Actions: https://github.com/kanr/nodered-k8s/actions
+- GitHub Actions: https://github.com/kanr/node-red-contrib-couchdb-nodes/actions
