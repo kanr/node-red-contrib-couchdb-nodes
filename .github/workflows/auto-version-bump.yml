@@ -3,7 +3,6 @@ name: Auto Version Bump
 on:
   workflow_run:
     workflows:
-      - Lint and Validate
       - Test and Build
     types:
       - completed
