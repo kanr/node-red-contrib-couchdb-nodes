@@ -239,39 +239,48 @@ Then set up GitHub Actions for future releases.
 
 ## 🔄 Publishing Updates
 
-### Updating Version
+### Recommended: Version Bump via Pull Request
 
-Use npm's built-in versioning:
-
-```bash
-# Patch release (1.0.0 -> 1.0.1)
-npm version patch
-
-# Minor release (1.0.0 -> 1.1.0)
-npm version minor
-
-# Major release (1.0.0 -> 2.0.0)
-npm version major
-```
-
-This automatically:
-- Updates `package.json` version
-- Creates a git commit
-- Creates a git tag
-
-### Push to trigger GitHub Actions
+This is the recommended approach for consistent version management:
 
 ```bash
-# Push commit and tag
-git push origin main --tags
+# 1. Create branch from latest main
+git fetch origin
+git checkout -b bump/version-X.Y.Z origin/main
 
-# GitHub Actions will:
-# ✅ Run all tests
-# ✅ Verify version matches tag
-# ✅ Check if version already exists on npm
-# ✅ Publish to npm (if new version)
-# ✅ Create GitHub Release
+# 2. Update package.json version manually
+# Edit: "version": "X.Y.Z"
+
+# 3. Update package-lock.json  
+npm install --package-lock-only
+
+# 4. Commit and push
+git add package.json package-lock.json
+git commit -m "Bump version to X.Y.Z"
+git push -u origin bump/version-X.Y.Z
+
+# 5. Create PR, get review, merge
+gh pr create --title "Bump version to X.Y.Z" --body "Version bump"
+# Review and merge via GitHub UI or: gh pr merge --merge
+
+# 6. Create and push release tag
+git checkout main && git pull
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
+
+**GitHub Actions will then:**
+- ✅ Run all tests
+- ✅ Verify version matches tag
+- ✅ Check if version already exists on npm
+- ✅ Publish to npm (if new version)
+- ✅ Create GitHub Release
+
+### Semantic Versioning Guide
+
+- **Patch** (0.1.0 → 0.1.1): Bug fixes, minor changes
+- **Minor** (0.1.0 → 0.2.0): New features, backward compatible
+- **Major** (0.1.0 → 1.0.0): Breaking changes
 
 ## 🔍 Verification
 
@@ -365,11 +374,13 @@ npm view node-red-contrib-couchdb-nodes
 
 **Solution**:
 ```bash
-# Update version first
-npm version patch  # or minor/major
+# Update to a new version number in package.json
+# Then update lockfile
+npm install --package-lock-only
 
-# Push with tags
-git push origin main --tags
+# Create PR, merge, then tag
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 ### GitHub Actions failing
@@ -390,7 +401,8 @@ git push origin main --tags
 Before creating a release:
 
 - [ ] All tests passing: `npm test`
-- [ ] Version updated: `npm version [patch|minor|major]`
+- [ ] Version updated in package.json
+- [ ] package-lock.json updated: `npm install --package-lock-only`
 - [ ] README.md is current
 - [ ] LICENSE file exists
 - [ ] CHANGELOG updated (optional)

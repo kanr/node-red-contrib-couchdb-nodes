@@ -7,6 +7,7 @@
  * - couchdb-get: Retrieve documents from CouchDB by ID
  * - couchdb-query: Query documents using Mango queries
  * - couchdb-update: Update existing documents in CouchDB
+ * - couchdb-delete-doc: Delete documents from CouchDB by ID
  * 
  * All operation nodes require a server configuration to be selected.
  * 
@@ -22,6 +23,7 @@ module.exports = function(RED) {
   require('./get/couchdb-get')(RED);
   require('./query/couchdb-query')(RED);
   require('./update/couchdb-update')(RED);
+  require('./delete-doc/couchdb-delete-doc')(RED);
   
   // Database management nodes
   require('./create-db/couchdb-create-db')(RED);

@@ -1,0 +1,131 @@
+[
+  {
+    "id": "example-delete-flow",
+    "type": "tab",
+    "label": "CouchDB Delete Document Example",
+    "disabled": false,
+    "info": "Example showing how to delete a document using the Delete Document node.\nWorkflow: Inject docId → Get document → Delete → Debug output"
+  },
+  {
+    "id": "inject-delete",
+    "type": "inject",
+    "z": "example-delete-flow",
+    "name": "Trigger Delete",
+    "props": [
+      {
+        "p": "docId",
+        "v": "doc-to-delete",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 120,
+    "y": 80,
+    "wires": [
+      [
+        "set-database-delete"
+      ]
+    ]
+  },
+  {
+    "id": "set-database-delete",
+    "type": "function",
+    "z": "example-delete-flow",
+    "name": "Set Database",
+    "func": "msg.database = \"products\";\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 290,
+    "y": 80,
+    "wires": [
+      [
+        "get-for-delete"
+      ]
+    ]
+  },
+  {
+    "id": "get-for-delete",
+    "type": "couchdb-get",
+    "z": "example-delete-flow",
+    "name": "Get Document",
+    "server": "server-config",
+    "database": "products",
+    "docId": "",
+    "x": 480,
+    "y": 80,
+    "wires": [
+      [
+        "delete-document"
+      ],
+      [
+        "error-handler"
+      ]
+    ]
+  },
+  {
+    "id": "delete-document",
+    "type": "couchdb-delete-doc",
+    "z": "example-delete-flow",
+    "name": "Delete Document",
+    "server": "server-config",
+    "database": "products",
+    "docId": "",
+    "x": 690,
+    "y": 80,
+    "wires": [
+      [
+        "success-output"
+      ],
+      [
+        "error-handler"
+      ]
+    ]
+  },
+  {
+    "id": "success-output",
+    "type": "debug",
+    "z": "example-delete-flow",
+    "name": "Deletion Result",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "result",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 880,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "error-handler",
+    "type": "debug",
+    "z": "example-delete-flow",
+    "name": "Error Output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "error",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 880,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "server-config",
+    "type": "couchdb-server",
+    "hostname": "localhost",
+    "port": 5984,
+    "username": "admin"
+  }
+]
