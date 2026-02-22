@@ -4,23 +4,40 @@ on:
   workflow_run:
     workflows:
       - Lint and Validate
+      - Test and Build
     types:
       - completed
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+  debug-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump workflow_run context
+        run: |
+          echo "workflow_run.event: ${{ github.event.workflow_run.event }}"
+          echo "workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "workflow_run.status: ${{ github.event.workflow_run.status }}"
+          echo "workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "workflow_run.head_sha: ${{ github.event.workflow_run.head_sha }}"
+          echo "workflow_run.head_commit.message: ${{ github.event.workflow_run.head_commit.message }}"
+          echo "workflow_run.pull_requests: ${{ toJson(github.event.workflow_run.pull_requests) }}"
+
   bump-version:
     runs-on: ubuntu-latest
 
-    # Only bump on successful push-based runs, and skip bump commits
+    # Only bump on successful PR runs from this repo, and skip bump commits
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      !contains(github.event.workflow_run.head_commit.message, '[skip-version]') &&
-      !contains(github.event.workflow_run.head_commit.message, 'bump:')
-    
+       github.event.workflow_run.conclusion == 'success' &&
+       (
+         (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests != null) ||
+         github.event.workflow_run.event == 'push' ||
+         github.event.workflow_run.event == 'workflow_dispatch'
+       )
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,6 +50,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
+
+      - name: Check if version already bumped in PR
+        run: |
+          git fetch origin main --depth=1
+          BASE_VERSION=$(git show origin/main:package.json | node -e "const fs=require('fs');const data=fs.readFileSync(0,'utf8');console.log(JSON.parse(data).version);")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Base version: $BASE_VERSION"
+          echo "Current version: $CURRENT_VERSION"
+          if [ "$CURRENT_VERSION" != "$BASE_VERSION" ]; then
+            echo "✅ Version already bumped in this PR. Skipping auto-bump."
+            exit 0
+          fi
 
       - name: Configure Git
         run: |
