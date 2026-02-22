@@ -1,13 +1,13 @@
 name: Auto Version Bump
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows:
       - Lint and Validate
       - Test and Build
     types:
       - completed
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -34,7 +34,8 @@ jobs:
        github.event.workflow_run.conclusion == 'success' &&
        (
          (github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests != null) ||
-         github.event.workflow_run.event == 'push'
+         github.event.workflow_run.event == 'push' ||
+         github.event.workflow_run.event == 'workflow_dispatch'
        )
       
     steps:
