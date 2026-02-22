@@ -4,7 +4,7 @@ This directory contains GitHub Actions workflows for continuous integration and 
 
 ## Overview
 
-Three main workflows are configured to run automatically on every push and pull request:
+Four main workflows are configured:
 
 ### 1. **test.yml** - Test and Build Pipeline
 **Trigger**: Push to `main` or `develop`, or pull requests
@@ -46,6 +46,21 @@ Three main workflows are configured to run automatically on every push and pull 
 - ✅ Markdown syntax validation
 - ✅ Package integrity checks
 - ✅ Dependency vulnerability scanning
+
+### 4. **auto-version-bump.yml** - Automatic Version Bumping
+**Trigger**: Push to `main` (excluding workflow, docs, and example changes)
+
+**Status**: Experimental - Currently configured conservatively
+
+**Behavior**:
+- Automatically bumps patch version for code changes
+- Skips for documentation-only changes (`.md` files, `examples/`)
+- Skips for workflow changes (`.github/workflows/`)
+- Creates version commit and tag automatically
+
+**Skip Trigger**: Include `[skip-version]` in commit message
+
+**Note**: Currently, manual version bumps via PR are recommended for predictable control.
 
 ## Setup Instructions
 

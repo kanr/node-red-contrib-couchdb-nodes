@@ -18,7 +18,6 @@ Based on [Node-RED creating nodes documentation](https://nodered.org/docs/creati
 6. **Test** - always run tests and update tests where applicable
 7. **Git** - always checkout to a new branch to make changes
 
-
 ### Node-RED Node Structure
 
 All CouchDB nodes follow this pattern. Configuration nodes are retrieved and server connections are established in the registration function:
