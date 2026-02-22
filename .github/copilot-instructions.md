@@ -48,3 +48,26 @@ This is a Node-RED contribution package that provides CouchDB integration nodes.
 - `bump/` - Version or dependency updates (e.g., `bump/version-0.1.1`)
 
 **Examples**:
+
+## Git Commit Message Guidelines
+
+**Format**: `<type>: <subject>`
+**Types**:
+- `feat` - New feature
+- `fix` - Bug fix
+- `docs` - Documentation changes
+- `test` - Tests added or modified
+- `refactor` - Code refactoring
+- `chore` - Maintenance tasks (e.g., dependencies, build scripts)
+**Subject**: Brief description of the change (max 72 characters) 
+**Examples**:
+- `feat: add support for bulk document retrieval`
+- `fix: handle conflict errors correctly in updates`
+- `docs: update installation instructions`
+- `test: add tests for Mango query functionality`  
+- `refactor: simplify error handling logic`
+- `chore: update nano to version 10.0.0`
+
+### Coauthoring
+for commits that are assisted by copilot, include a co-author trailer:
+```Co-authored-by: GitHub Copilot <noreply@github.com>```
