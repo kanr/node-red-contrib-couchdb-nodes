@@ -60,7 +60,7 @@
     "z": "example-update-flow",
     "name": "Get Document",
     "server": "couchdb-server-1",
-    "database": "mydb",
+    "database": "test_database",
     "docId": "",
     "x": 510,
     "y": 100,
@@ -97,7 +97,7 @@
     "z": "example-update-flow",
     "name": "Update Document",
     "server": "couchdb-server-1",
-    "database": "mydb",
+    "database": "test_database",
     "x": 910,
     "y": 100,
     "wires": [
@@ -159,13 +159,5 @@
     "x": 740,
     "y": 140,
     "wires": []
-  },
-  {
-    "id": "couchdb-server-1",
-    "type": "couchdb-server",
-    "hostname": "localhost",
-    "port": "5984",
-    "username": "",
-    "password": ""
   }
 ]

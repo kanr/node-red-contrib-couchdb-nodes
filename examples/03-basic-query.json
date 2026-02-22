@@ -55,7 +55,7 @@
     "z": "example-query-flow",
     "name": "Query CouchDB View",
     "server": "couchdb-server-1",
-    "database": "mydb",
+    "database": "test_database",
     "view": "design_doc/view_name",
     "include_docs": true,
     "key": "",
@@ -106,13 +106,5 @@
     "x": 810,
     "y": 120,
     "wires": []
-  },
-  {
-    "id": "couchdb-server-1",
-    "type": "couchdb-server",
-    "hostname": "localhost",
-    "port": "5984",
-    "username": "",
-    "password": ""
   }
 ]

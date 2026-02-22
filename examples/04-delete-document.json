@@ -120,12 +120,5 @@
     "x": 880,
     "y": 120,
     "wires": []
-  },
-  {
-    "id": "server-config",
-    "type": "couchdb-server",
-    "hostname": "localhost",
-    "port": 5984,
-    "username": "admin"
   }
 ]
