@@ -1,15 +1,12 @@
-name: Auto Version Bump
+name: Auto Version Bump (DISABLED)
 
+# This workflow is disabled - manual version bumping preferred
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '.github/workflows/**'
-      - 'README.md'
-      - 'LICENSE'
-      - 'examples/**'
-      - '**.md'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Optional version to set (e.g., 0.1.3)'
+        required: false
 
 permissions:
   contents: write
